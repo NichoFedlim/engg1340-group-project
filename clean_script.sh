@@ -1,0 +1,16 @@
+make clean
+cd ENGG1300
+make clean
+cd ..
+cd ENGG1310
+make clean
+cd ..
+cd ENGG1320
+make clean
+cd ..
+cd ENGG1330
+make clean
+cd ..
+cd ENGG1340
+make clean
+cd ..
