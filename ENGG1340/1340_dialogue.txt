@@ -1,0 +1,23 @@
+# Intro dialogues
+Welcome to ENGG1340 - Computer Programming II! I'm your professor, and we'll be exploring the fascinating world of C++ today.
+In this practical assessment, you'll be defending our codebase against an invasion of "C" language elements trying to corrupt our C++ code.
+Your mission is to prevent these "C" spaceships from reaching the left side of the screen by shooting them down with your lasers.
+Be careful - the spaceships will fire "+" projectiles at you, and as the challenge increases, they'll drop "O" bombs that rain down from above.
+You'll start with 10 HP. Each hit from an enemy spaceship, projectile, or bomb will reduce your health by 1 point. If your HP reaches zero, you fail the course.
+Use the arrow keys to move your heart symbol, and press 'F' to fire lasers. Space bar toggles your movement on and off.
+The assessment has three increasingly difficult rounds. You must achieve a score of 2000 points in each round to advance.
+Are you ready to defend the integrity of C++ against primitive C invasion? Let's begin our programming battle!
+
+# Round info dialogues
+Round 1: C Basics. In this round, you'll face basic C spaceships trying to reach your code base. Prevent them from reaching the left edge by shooting them down with your C++ lasers.
+Round 2: Pointers and Memory. Now the challenge increases with the addition of memory bombs dropping from above. Watch out for these additional hazards while continuing to fend off the spaceships.
+Round 3: Advanced Challenges. The final round features twice as many memory bombs! This represents the most complex memory management challenges in C. Stay focused and don't get overwhelmed!
+
+# Round completion dialogues
+Excellent work! You've completed Round 1 with SCORE points. You've demonstrated a good understanding of basic C concepts. But now we'll need to deal with memory management...
+Impressive! Round 2 cleared with SCORE points. You've mastered pointers and memory handling. Now prepare for the final challenge with advanced C concepts!
+Outstanding! You've conquered Round 3 with SCORE points and proven your mastery over the most challenging aspects of C programming. You're truly ready for advanced C++!
+
+# Game end dialogues
+CONGRATULATIONS! You've successfully defended our C++ codebase from all C invasions, scoring a total of SCORE points. Your understanding of both C and C++ principles is excellent - you'll make a fine programmer!
+COURSE FAILED! You were only able to reach Round ROUND with a score of SCORE. The C elements have corrupted your code. Better study more memory management and try again next semester!
