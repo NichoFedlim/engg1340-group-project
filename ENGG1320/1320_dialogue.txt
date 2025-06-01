@@ -1,0 +1,17 @@
+Welcome to ENGG1320! This course combines engineering and business, teaching skills like business models, market analysis, and sustainable innovation.
+In Coin Chase, you'll strategize, manage resources, and take risks--just like in real-world engineering projects.
+Collect coins, avoid traps, and complete all 5 levels to show your mastery of system design, innovation, and decision-making.
+Let's get started!
+Remember: yellow stars are regular coins, blue '$' symbols give you extra time, and magenta 'X' marks are traps to avoid!
+Round 1: This is the basics. Collect 8 coins within 60 seconds. Use arrow keys to move, spacebar to stop. Watch out for traps!
+Round 2: Things get a bit trickier now. You'll need 11 coins, and you only have 50 seconds. More traps will appear!
+Round 3: Halfway there! Now you need 14 coins in just 40 seconds. Manage your time and watch for those traps!
+Round 4: Almost to the end! 17 coins in 30 seconds. Time is tight, so prioritize those special coins for extra seconds!
+Round 5: The final challenge! 20 coins in just 20 seconds. This requires perfect execution. Good luck!
+Great job on round 1! You're getting the hang of it. Your current score: SCORE points. Ready for the next level?
+Excellent work completing round 2! The traps didn't stop you. Your score: SCORE points. Let's keep going!
+Impressive performance on round 3! Halfway there with a score of SCORE points. Can you handle the next challenge?
+Outstanding! You conquered round 4 with precision. Your score stands at SCORE points. Just one more level to go!
+Remarkable! You've mastered the final round. Your current score: SCORE points. You've completed the entire challenge!
+Congratulations! You've completed all 5 levels with a score of SCORE points. You've shown strong skills in planning, innovation, and engineering business principles. Keep building on this success--you're ready to turn ideas into impact!
+Game over! You reached ROUND with a score of SCORE points. Every failure is a chance to learn--refine your strategy and try again. Remember, innovation thrives on persistence!
