@@ -1,0 +1,24 @@
+Welcome to ENGG1330 -- Computer Programming I (Python)!
+I'm your instructor, and today you'll be "debugging" our freshly-written Python code.
+An infestation of logic bugs--disguised as chess pieces from last semester's chess assignment has slipped into the repository.
+Rooks fire straight laser beams, Bishops sweep the board in elegant diagonals, Knights appear out of nowhere and pounce in L-shaped bursts. 
+And, of course, a hungry snake (Python!) will slither after you whenever it smells an indentation error.
+Your mission: survive all 7 waves of attacks and keep the code style guide unbroken.
+You begin with 10 HP. Every collision with a bug, beam or bomb costs 1 HP. Lose all HP and you'll have to take this course again next semester.
+Good luck! You'll need it.
+Round 1: Python Syntax & Variables. Dodge the straight shots and keep your variables safe!
+Round 2: Control Flow. If/else branches bring complexity! Bishops join the battle with diagonal beams that cross the arena. Show that you can navigate both logical paths without getting hit.
+Round 3: Data Collections. Lists, tuples and dictionaries arrive in grid-lock. A full Tic-Tac-Toe lattice of lasers boxes you in; weave through the hash-table of fire to prove you can index anything.
+Round 4: Functions & Recursion. The arena is quartered. Three quadrants will overflow with laser spam while one stays safe--but the safe zone keeps changing. Find the function of safety, call it recursively, and stay alive.
+Round 5: Searching Algorithms. Here comes the snake! Like a linear search it relentlessly explores the map toward you. While rook & bishop beams continue, show you can locate the optimal escape route.
+Round 6: Sorting Algorithms. Things get out of order fast: knights leap around while lasers rearrange themselves. Bubble, insertion, selection--whatever sort you fancy--keep your thoughts ordered and yourself intact.
+Round 7: Capstone: Mini-Chess Engine. All pieces, all patterns, maximum speed. This is the boss assignment from your nightmares--but now you're ready. Debug every last bug and checkmate the course!
+Excellent work! Your syntax is spotless--no missing colons here.
+Impressive! Control flow mastered; you dodged every branch prediction.
+You're showing real skill! Collections are under control--no out-of-range errors today.
+Remarkable! Functions executed flawlessly, recursion depth safe.
+Outstanding! You searched faster than any linear or binary routine--nice!
+Extraordinary! The arena is sorted, stable and in O(n log n) time. Impressive!
+UNBELIEVABLE! Total checkmate--you and your chess engine are unbeatable!
+CONGRATULATIONS! you have exterminated every logic bug and proven a first-class command of Python. Welcome to the ranks of real programmers!
+Game over! The bugs refactored your code into chaos. Review your Python basics and re-enqueue yourself for next semester.
