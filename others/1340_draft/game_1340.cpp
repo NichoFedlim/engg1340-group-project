@@ -1,0 +1,950 @@
+#include "game_1340.h"
+#include <ncursesw/ncurses.h>
+#include <unistd.h>
+#include <cmath>
+#include <cstring>
+#include <vector>
+#include <random>
+#include <memory>
+#include <ctime>
+#include <algorithm>
+
+// Game constants
+const int INITIAL_PLAYER_HEALTH = 10;
+const int LASER_DAMAGE = 1;
+const int SPACESHIP_DAMAGE = 1;
+const int BOMB_DAMAGE = 1;
+const float PROJECTILE_SPEED = 0.5f;
+const float SPACESHIP_SPEED = 0.1f;
+const float BOMB_SPEED = 0.2f;
+const float LASER_SPEED = 0.8f;
+const int SCORE_PER_SPACESHIP = 100;
+const int SCORE_PER_PROJECTILE = 10;
+const int SCORE_PER_BOMB = 50;
+
+// For enemy spawning
+const int SPACESHIP_SPAWN_INTERVAL = 60; // Frames between enemy spawns
+const int BOMB_SPAWN_INTERVAL_NORMAL = 120;
+const int BOMB_SPAWN_INTERVAL_FAST = 60;
+const int MAX_ENEMIES = 10;    // Maximum number of enemies on screen
+const int TARGET_SCORE = 2000; // Score needed to complete a round
+
+// GameObject class implementation
+class GameObject {
+protected:
+    float x, y;           // Position with floating-point precision
+    int lastDrawnX, lastDrawnY; // Last position where object was drawn
+    float directionX, directionY; // Direction vector (normalized)
+    float speed;          // Movement speed
+    int symbol;           // Symbol to represent the object
+    bool active;          // Whether the object is active/alive
+
+public:
+    GameObject(float startX, float startY, float dx, float dy, float spd, int sym) : 
+        x(startX), y(startY), 
+        lastDrawnX(static_cast<int>(round(startX))), 
+        lastDrawnY(static_cast<int>(round(startY))),
+        directionX(dx), directionY(dy),
+        speed(spd), symbol(sym), active(true) {}
+    
+    virtual ~GameObject() = default;
+
+    virtual void update() {
+        // Move in the current direction
+        x += directionX * speed;
+        y += directionY * speed;
+    }
+
+    void clearPrevious() {
+        // Clear the previous position
+        mvaddch(lastDrawnY, lastDrawnX, ' ');
+    }
+
+    virtual void draw() {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        // Only redraw if position has changed
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            // Clear previous position if it's different
+            clearPrevious();
+            
+            // Draw at new position
+            mvaddch(currentY, currentX, symbol);
+            
+            // Update last drawn position
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            // Redraw at same position (in case it was overwritten)
+            mvaddch(currentY, currentX, symbol);
+        }
+    }
+
+    float getX() const { return x; }
+    float getY() const { return y; }
+    bool isActive() const { return active; }
+    void setActive(bool state) { 
+        if (active && !state) {
+            // If turning from active to inactive, clear from screen
+            clearPrevious();
+        }
+        active = state; 
+    }
+    void deactivate() {
+        clearPrevious();
+        refresh();
+    }
+    
+    // Check collision with another game object
+    bool collidesWith(const GameObject& other) const {
+        int thisX = static_cast<int>(round(x));
+        int thisY = static_cast<int>(round(y));
+        int otherX = static_cast<int>(round(other.x));
+        int otherY = static_cast<int>(round(other.y));
+        
+        return (thisX == otherX && thisY == otherY);
+    }
+};
+
+// Heart class implementation
+class Heart : public GameObject {
+private:
+    float aspectRatio;    // Character aspect ratio (width/height)
+    bool moving;          // Whether the heart is moving
+    int health;           // Player health
+    int score;            // Player score
+    int invincibilityFrames; // Frames of invincibility after taking damage
+
+public:
+    Heart(int startX, int startY) : 
+        GameObject(static_cast<float>(startX), static_cast<float>(startY), 0.0f, 0.0f, 0.3f, ACS_DIAMOND),
+        aspectRatio(2.0f), moving(false), health(INITIAL_PLAYER_HEALTH), score(0), invincibilityFrames(0) {}
+
+    void update() override {
+        if (moving) {
+            // Move in the current direction with aspect ratio compensation
+            // Horizontal movement is sped up by the aspect ratio
+            x += directionX * speed * aspectRatio;
+            // Vertical movement stays at base speed
+            y += directionY * speed;
+        }
+        
+        // Decrease invincibility frames if player is invincible
+        if (invincibilityFrames > 0) {
+            invincibilityFrames--;
+        }
+    }
+
+    void draw() override {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        // Only redraw if position has changed
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            // Clear previous position if it's different
+            clearPrevious();
+            
+            // Draw at new position with appropriate color
+            if (invincibilityFrames > 0 && invincibilityFrames % 2 == 0) {
+                // Flashing effect during invincibility
+                attron(COLOR_PAIR(2)); // Yellow for invincibility
+            } else {
+                attron(COLOR_PAIR(1)); // Red heart color
+            }
+            
+            mvaddch(currentY, currentX, symbol);
+            
+            if (invincibilityFrames > 0 && invincibilityFrames % 2 == 0) {
+                attroff(COLOR_PAIR(2));
+            } else {
+                attroff(COLOR_PAIR(1));
+            }
+            
+            // Update last drawn position
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            // Redraw at same position (in case it was overwritten)
+            if (invincibilityFrames > 0 && invincibilityFrames % 2 == 0) {
+                attron(COLOR_PAIR(2));
+            } else {
+                attron(COLOR_PAIR(1));
+            }
+            
+            mvaddch(currentY, currentX, symbol);
+            
+            if (invincibilityFrames > 0 && invincibilityFrames % 2 == 0) {
+                attroff(COLOR_PAIR(2));
+            } else {
+                attroff(COLOR_PAIR(1));
+            }
+        }
+    }
+
+    void setDirection(float dx, float dy) {
+        // Set a new direction vector
+        if (dx != 0.0f || dy != 0.0f) {
+            // Normalize the direction vector
+            float length = sqrt(dx * dx + dy * dy);
+            directionX = dx / length;
+            directionY = dy / length;
+            moving = true;  // Start moving when a direction is set
+        }
+    }
+    
+    void setAspectRatio(float ratio) {
+        aspectRatio = ratio;
+    }
+    
+    void stop() {
+        moving = false;
+    }
+    
+    void start() {
+        moving = true;
+    }
+    
+    bool isMoving() const {
+        return moving;
+    }
+
+    void setPosition(float newX, float newY) {
+        x = newX;
+        y = newY;
+    }
+
+    void takeDamage(int amount) {
+        if (invincibilityFrames <= 0) {
+            health -= amount;
+            if (health < 0) health = 0;
+            invincibilityFrames = 30; // About half a second at 60FPS
+        }
+    }
+    
+    void addScore(int amount) {
+        score += amount;
+    }
+    
+    void resetScore() {
+        score = 0;
+    }
+    
+    void resetHealth() {
+        health = INITIAL_PLAYER_HEALTH;
+    }
+    
+    int getHealth() const { return health; }
+    int getScore() const { return score; }
+    float getAspectRatio() const { return aspectRatio; }
+    bool isInvincible() const { return invincibilityFrames > 0; }
+    float getDirectionX() const { return directionX; }
+    float getDirectionY() const { return directionY; }
+};
+
+// Laser class implementation
+class Laser : public GameObject {
+public:
+    Laser(float startX, float startY, float dx, float dy) :
+        GameObject(startX, startY, dx, dy, LASER_SPEED, '-') {}
+    
+    void draw() override {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        // Only redraw if position has changed
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            clearPrevious();
+            
+            // Draw with cyan color
+            attron(COLOR_PAIR(3)); // Cyan for laser
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(3));
+            
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            attron(COLOR_PAIR(3));
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(3));
+        }
+    }
+};
+
+// Spaceship class implementation
+class Spaceship : public GameObject {
+private:
+    int health;
+    int fireCooldown;
+    int maxFireCooldown;
+    bool reachedLeftEdge;
+
+public:
+    Spaceship(float startX, float startY, float dx, float dy) :
+        GameObject(startX, startY, dx, dy, SPACESHIP_SPEED, 'C'),
+        health(1),
+        fireCooldown(0),
+        maxFireCooldown(120),
+        reachedLeftEdge(false) {}
+    
+    void update() override {
+        GameObject::update();
+        //Decrease cooldown if active
+        if (fireCooldown > 0){
+            fireCooldown--;
+        }
+    }
+
+    bool canFire() const {
+        return fireCooldown <= 0;
+    }
+
+    void resetFireCoolDown() {
+        fireCooldown = maxFireCooldown;
+    }
+
+    void draw() override {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            clearPrevious();
+            
+            // Draw with blue color
+            attron(COLOR_PAIR(4)); // Blue for spaceships
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(4));
+            
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            attron(COLOR_PAIR(4));
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(4));
+        }
+    }
+    
+    void takeDamage(int amount) {
+        health -= amount;
+        if (health <= 0) {
+            active = false;
+        }
+    }
+    
+    // Check if spaceship has reached left edge
+    bool hasReachedLeft(int leftEdge) const {
+        return static_cast<int>(round(x)) <= leftEdge && !reachedLeftEdge;
+    }
+    
+    void markReachedLeftEdge() {
+        reachedLeftEdge = true;
+    }
+    
+    int getHealth() const { return health; }
+};
+
+// Projectile class implementation
+class Projectile : public GameObject {
+public:
+    Projectile(float startX, float startY, float dx, float dy) :
+        GameObject(startX, startY, dx, dy, PROJECTILE_SPEED, '+') {}
+        
+    void draw() override {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            clearPrevious();
+            
+            // Draw with green color
+            attron(COLOR_PAIR(5)); // Green for projectiles
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(5));
+            
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            attron(COLOR_PAIR(5));
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(5));
+        }
+    }
+};
+
+// Bomb class implementation
+class Bomb : public GameObject {
+private:
+    int timer;
+
+public:
+    Bomb(float startX, float startY) :
+        GameObject(startX, startY, 0.0f, 1.0f, BOMB_SPEED, 'O'),
+        timer(120) {} // About 1 second at 60 FPS
+        
+    void update() override {
+        GameObject::update();
+        timer--;
+        if (timer <= 0) {
+            active = false; // Bomb "explodes" and disappears
+        }
+    }
+    
+    void draw() override {
+        int currentX = static_cast<int>(round(x));
+        int currentY = static_cast<int>(round(y));
+        
+        if (currentX != lastDrawnX || currentY != lastDrawnY) {
+            clearPrevious();
+            
+            // Draw with magenta color
+            attron(COLOR_PAIR(6)); // Magenta for bombs
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(6));
+            
+            lastDrawnX = currentX;
+            lastDrawnY = currentY;
+        } else {
+            attron(COLOR_PAIR(6));
+            mvaddch(currentY, currentX, symbol);
+            attroff(COLOR_PAIR(6));
+        }
+    }
+    
+    int getTimer() const { return timer; }
+};
+
+// BattleBox class implementation
+class BattleBox {
+private:
+    int x, y;         // Top-left corner position
+    int width, height; // Box dimensions
+    bool needsRedraw;  // Flag to determine if the box needs redrawing
+
+public:
+    BattleBox(int startX, int startY, int w, int h) :
+        x(startX), y(startY), width(w), height(h), needsRedraw(true) {}
+
+    void draw() {
+        if (!needsRedraw) return;
+        
+        // Enable reverse highlighting
+        attron(A_REVERSE);
+    
+        // Draw the top and bottom borders of the battle box
+        for (int i = -1; i <= width+1; i++) {
+            mvaddch(y, x + i, ' ');              // Top border (space with reverse highlight)
+            mvaddch(y + height, x + i, ' ');     // Bottom border
+        }
+    
+        // Draw the left and right borders of the battle box
+        for (int i = 0; i <= height; i++) {
+            mvaddch(y + i, x, ' ');              // Left border
+            mvaddch(y + i, x + width, ' ');      // Right border
+            mvaddch(y + i, x-1, ' ');            // Left border
+            mvaddch(y + i, x+1 + width, ' ');    // Right border
+        }
+    
+        // Disable reverse highlighting
+        attroff(A_REVERSE);
+        
+        needsRedraw = true;
+    }
+
+    void setNeedsRedraw() {
+        needsRedraw = true;
+    }
+
+    // Check if a position is inside the battle box (with a small margin)
+    bool contains(float checkX, float checkY) const {
+        int ix = static_cast<int>(round(checkX));
+        int iy = static_cast<int>(round(checkY));
+        return (ix > x && ix < x + width && iy > y && iy < y + height);
+    }
+    
+    // Check if a position is outside the battle box (with a small margin)
+    bool isOutside(float checkX, float checkY) const {
+        return !contains(checkX, checkY);
+    }
+
+    int getX() const { return x; }
+    int getY() const { return y; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+};
+
+// Game1340 class implementation
+Game1340::Game1340(int maxX, int maxY) {
+    // Create the battle box centered in the screen
+    battleBox = new BattleBox(maxX/2 - 20, maxY/2 - 8, 40, 16);
+    
+    // Create the player's heart
+    heart = new Heart(maxX/2, maxY/2);
+    
+    // Initialize game state
+    round = 1;
+    frameCount = 0;
+    gameOver = false;
+    targetScore = TARGET_SCORE;
+    bombSpawnInterval = BOMB_SPAWN_INTERVAL_NORMAL;
+    spawnBombs = false;
+}
+
+Game1340::~Game1340() {
+    delete battleBox;
+    delete heart;
+}
+
+void Game1340::init() {
+    // Clear all game objects
+    spaceships.clear();
+    projectiles.clear();
+    bombs.clear();
+    lasers.clear();
+    
+    // Reset game state
+    frameCount = 0;
+    gameOver = false;
+    
+    // Reset player state
+    heart->resetHealth();
+    heart->resetScore();
+    heart->stop();
+    
+    // Draw the battle box
+    battleBox->draw();
+}
+
+void Game1340::setupRound(int roundNumber) {
+    round = roundNumber;
+    
+    // Configure round-specific settings
+    switch (round) {
+        case 1:
+            // Round 1: Only spaceships, no bombs
+            spawnBombs = false;
+            bombSpawnInterval = 0; // Not used
+            break;
+        case 2:
+            // Round 2: Spaceships + normal frequency bombs
+            spawnBombs = true;
+            bombSpawnInterval = BOMB_SPAWN_INTERVAL_NORMAL;
+            break;
+        case 3:
+            // Round 3: Spaceships + double frequency bombs
+            spawnBombs = true;
+            bombSpawnInterval = BOMB_SPAWN_INTERVAL_FAST;
+            break;
+        default:
+            // Default to round 1 settings
+            spawnBombs = false;
+            bombSpawnInterval = 0;
+            break;
+    }
+}
+
+bool Game1340::processInput() {
+    int ch = getch();
+    
+    if (ch != ERR) {  // If a key was pressed
+        if (ch == 'q' || ch == 'Q') {
+            return false; // Signal to quit the game
+        } else if (ch == ' ') {
+            // Space toggles movement
+            if (heart->isMoving()) {
+                heart->stop();
+            } else {
+                heart->start();
+            }
+        } else if (ch == KEY_UP) {
+            heart->setDirection(0.0f, -1.0f);  // Up
+            heart->start();  // Make sure movement is enabled
+        } else if (ch == KEY_DOWN) {
+            heart->setDirection(0.0f, 1.0f);   // Down
+            heart->start();  // Make sure movement is enabled
+        } else if (ch == KEY_LEFT) {
+            heart->setDirection(-1.0f, 0.0f);  // Left
+            heart->start();  // Make sure movement is enabled
+        } else if (ch == KEY_RIGHT) {
+            heart->setDirection(1.0f, 0.0f);   // Right
+            heart->start();  // Make sure movement is enabled
+        } else if (ch == 'f' || ch == 'F') {
+            float dx = 1.0f;
+            float dy = 0.0f;
+            // Create and add a new laser (using C++11 compatible code)
+            lasers.push_back(std::unique_ptr<Laser>(new Laser(
+                heart->getX(), heart->getY(), dx, dy
+            )));
+        }
+    }
+    
+    return true;
+}
+
+void Game1340::spawnEnemies() {
+    // Spawn new spaceships at regular intervals
+    if (frameCount % SPACESHIP_SPAWN_INTERVAL == 0 && 
+        static_cast<int>(spaceships.size()) < MAX_ENEMIES) {
+        float startX, startY;
+        float dirX, dirY;
+        
+        // Start from right edge
+        startX = static_cast<float>(battleBox->getX() + battleBox->getWidth() - 1);
+        // Random Y position
+        startY = static_cast<float>(battleBox->getY() + 1 + std::rand() % (battleBox->getHeight() - 2));
+        
+        // Always move left (negative X direction)
+        dirX = -1.0f;
+        
+        // Calculate maximum allowed vertical movement to ensure reaching left edge
+        // Distance to left edge
+        float distanceToLeftEdge = startX - (battleBox->getX() + 1);
+        // Distance to top edge (how far we can go up)
+        float distanceToTopEdge = startY - (battleBox->getY() + 1);
+        // Distance to bottom edge (how far we can go down)
+        float distanceToBottomEdge = (battleBox->getY() + battleBox->getHeight() - 1) - startY;
+        
+        // Maximum allowed vertical movement per horizontal unit to reach left edge
+        float maxUpSlope = distanceToTopEdge / distanceToLeftEdge;
+        float maxDownSlope = distanceToBottomEdge / distanceToLeftEdge;
+        
+        // Random vertical direction within bounds that ensure reaching left edge
+        float verticalRange = std::min(maxUpSlope, 1.0f) + std::min(maxDownSlope, 1.0f);
+        float normalizedPosition = static_cast<float>(std::rand()) / RAND_MAX; // 0.0 to 1.0
+        
+        // Convert to range from -maxUpSlope to +maxDownSlope
+        dirY = -std::min(maxUpSlope, 1.0f) + normalizedPosition * verticalRange;
+        
+        // Normalize the direction vector
+        float length = std::sqrt(dirX * dirX + dirY * dirY);
+        dirX /= length;
+        dirY /= length;
+        
+        // Create the spaceship (using C++11 compatible code)
+        spaceships.push_back(std::unique_ptr<Spaceship>(new Spaceship(startX, startY, dirX, dirY)));
+    }
+    
+    // Spawn bombs if enabled for the current round
+    if (spawnBombs && frameCount % bombSpawnInterval == 0 && bombs.size() < MAX_ENEMIES / 2) {
+        // Random x position along the top of the battle box
+        float bombX = static_cast<float>(
+            battleBox->getX() + 1 + std::rand() % (battleBox->getWidth() - 2)
+        );
+        float bombY = static_cast<float>(battleBox->getY() + 1); // Start at the top
+        
+        bombs.push_back(std::unique_ptr<Bomb>(new Bomb(bombX, bombY)));
+    }
+    
+    // Randomly fire projectiles from spaceships
+    for (auto& ship : spaceships) {
+        if (ship->isActive() && ship->canFire() && std::rand() % 50 == 0) {
+            // Direction towards player
+            float dx = heart->getX() - ship->getX();
+            float dy = heart->getY() - ship->getY();
+            float length = std::sqrt(dx * dx + dy * dy);
+            
+            // Add some randomness to aim
+            dx = dx / length + (std::rand() % 100 - 50) / 500.0f;
+            dy = dy / length + (std::rand() % 100 - 50) / 500.0f;
+            
+            // Normalize again
+            length = std::sqrt(dx * dx + dy * dy);
+            dx /= length;
+            dy /= length;
+            
+            projectiles.push_back(std::unique_ptr<Projectile>(new Projectile(
+                ship->getX(), ship->getY(), dx, dy
+            )));
+
+            //Reset cooldown
+            ship->resetFireCoolDown();
+        }
+    }
+}
+
+void Game1340::update() {
+    // Update heart position
+    heart->update();
+    
+    // Boundary checking to keep heart inside the battle box
+    float heartX = heart->getX();
+    float heartY = heart->getY();
+    bool positionConstrained = false;
+    
+    // Constrain position
+    if (heartX < battleBox->getX() + 1) {
+        heart->setPosition(static_cast<float>(battleBox->getX() + 1), heartY);
+        positionConstrained = true;
+    }
+    if (heartX > battleBox->getX() + battleBox->getWidth() - 1) {
+        heart->setPosition(static_cast<float>(battleBox->getX() + battleBox->getWidth() - 1), heartY);
+        positionConstrained = true;
+    }
+    if (heartY < battleBox->getY() + 1) {
+        heart->setPosition(heartX, static_cast<float>(battleBox->getY() + 1));
+        positionConstrained = true;
+    }
+    if (heartY > battleBox->getY() + battleBox->getHeight() - 1) {
+        heart->setPosition(heartX, static_cast<float>(battleBox->getY() + battleBox->getHeight() - 1));
+        positionConstrained = true;
+    }
+    
+    // Increment frame counter and spawn enemies
+    frameCount++;
+    spawnEnemies();
+    
+    // Update lasers
+    for (auto& laser : lasers) {
+        if (laser->isActive()) {
+            laser->update();
+            
+            // Check if laser has left the battle box
+            if (battleBox->isOutside(laser->getX(), laser->getY())) {
+                laser->setActive(false);
+                laser->deactivate();
+                continue;
+            }
+
+            bool collisionDetected = false;
+            
+            // Check for collisions with enemies
+            for (auto& ship : spaceships) {
+                if (ship->isActive() && laser->collidesWith(*ship)) {
+                    ship->takeDamage(LASER_DAMAGE);
+                    laser->setActive(false);
+                    collisionDetected = true;
+                    if (!ship->isActive()) {
+                        ship->deactivate();
+                        heart->addScore(SCORE_PER_SPACESHIP);
+                    }
+                    break;
+                }
+            }
+
+            // Skip further checks if laser is no longer active
+            if (!laser->isActive()) continue;
+            // Skip further collision checks if a collision was already detected
+            if (collisionDetected) continue;
+            
+            // Check for collisions with projectiles
+            for (auto& proj : projectiles) {
+                if (proj->isActive() && laser->collidesWith(*proj)) {
+                    proj->setActive(false);
+                    laser->setActive(false);
+                    heart->addScore(SCORE_PER_PROJECTILE); // Small score for destroying projectile
+                    break;
+                }
+            }
+            
+            // Skip further checks if laser is no longer active
+            if (!laser->isActive()) continue;
+            // Skip further collision checks if a collision was already detected
+            if (collisionDetected) continue;
+            
+            // Check for collisions with bombs
+            for (auto& bomb : bombs) {
+                if (bomb->isActive() && laser->collidesWith(*bomb)) {
+                    bomb->setActive(false);
+                    laser->setActive(false);
+                    heart->addScore(SCORE_PER_BOMB); // Medium score for destroying bomb
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Update spaceships
+    for (auto& ship : spaceships) {
+        if (ship->isActive()) {
+            ship->update();
+            
+            // Check if ship has left the battle box
+            if (battleBox->isOutside(ship->getX(), ship->getY())) {
+                ship->setActive(false);
+                continue;
+            }
+            
+            // Check if ship has reached left edge of battlebox
+            if (ship->hasReachedLeft(battleBox->getX() + 1)) {
+                heart->takeDamage(SPACESHIP_DAMAGE);
+                ship->markReachedLeftEdge();
+                ship->setActive(false);
+                continue;
+            }
+            
+            // Check for collision with player
+            if (ship->collidesWith(*heart) && !heart->isInvincible()) {
+                heart->takeDamage(SPACESHIP_DAMAGE);
+                ship->setActive(false);
+            }
+        }
+    }
+    
+    // Update projectiles
+    for (auto& proj : projectiles) {
+        if (proj->isActive()) {
+            proj->update();
+            
+            // Check if projectile has left the battle box
+            if (battleBox->isOutside(proj->getX(), proj->getY())) {
+                proj->setActive(false);
+                continue;
+            }
+            
+            // Check for collision with player
+            if (proj->collidesWith(*heart) && !heart->isInvincible()) {
+                heart->takeDamage(1);
+                proj->setActive(false);
+            }
+        }
+    }
+    
+    // Update bombs
+    for (auto& bomb : bombs) {
+        if (bomb->isActive()) {
+            bomb->update();
+            
+            // Check if bomb has left the battle box
+            if (battleBox->isOutside(bomb->getX(), bomb->getY())) {
+                bomb->setActive(false);
+                continue;
+            }
+            
+            // Check for collision with player
+            if (bomb->collidesWith(*heart) && !heart->isInvincible()) {
+                heart->takeDamage(BOMB_DAMAGE);
+                bomb->setActive(false);
+            }
+        }
+    }
+    
+    // Clean up inactive objects (fixed C++11 lambdas)
+    lasers.erase(
+        std::remove_if(
+            lasers.begin(), lasers.end(),
+            [](const std::unique_ptr<Laser>& laser) { return !laser->isActive(); }
+        ),
+        lasers.end()
+    );
+    
+    spaceships.erase(
+        std::remove_if(
+            spaceships.begin(), spaceships.end(),
+            [](const std::unique_ptr<Spaceship>& ship) { return !ship->isActive(); }
+        ),
+        spaceships.end()
+    );
+    
+    projectiles.erase(
+        std::remove_if(
+            projectiles.begin(), projectiles.end(),
+            [](const std::unique_ptr<Projectile>& proj) { return !proj->isActive(); }
+        ),
+        projectiles.end()
+    );
+    
+    bombs.erase(
+        std::remove_if(
+            bombs.begin(), bombs.end(),
+            [](const std::unique_ptr<Bomb>& bomb) { return !bomb->isActive(); }
+        ),
+        bombs.end()
+    );
+    
+    // Check if game over
+    if (heart->getHealth() <= 0) {
+        gameOver = true;
+    }
+    
+    // Check if round is complete (score threshold reached)
+    if (heart->getScore() >= targetScore) {
+        return;  // Round complete
+    }
+}
+
+void Game1340::draw() {
+    // Draw all game objects
+    heart->draw();
+    
+    for (auto& laser : lasers) {
+        if (laser->isActive()) {
+            laser->draw();
+        }
+    }
+    
+    for (auto& ship : spaceships) {
+        if (ship->isActive()) {
+            ship->draw();
+        }
+    }
+    
+    for (auto& proj : projectiles) {
+        if (proj->isActive()) {
+            proj->draw();
+        }
+    }
+    
+    for (auto& bomb : bombs) {
+        if (bomb->isActive()) {
+            bomb->draw();
+        }
+    }
+    
+    // Display game stats
+    attron(COLOR_PAIR(7)); // White text
+    mvprintw(battleBox->getY() - 2, battleBox->getX(), "Health: %d  Score: %d/%d  Round: %d", 
+             heart->getHealth(), heart->getScore(), targetScore, round);
+    mvprintw(battleBox->getY() - 1, battleBox->getX(), "Enemies: %lu  Projectiles: %lu  Bombs: %lu", 
+             spaceships.size(), projectiles.size(), bombs.size());
+    attroff(COLOR_PAIR(7));
+}
+
+int Game1340::runRound() {
+    // Game loop
+    bool running = true;
+    
+    // Make sure the battle box is drawn at the start
+    battleBox->draw();
+    heart->draw();
+    refresh();
+
+    while (running) {
+        // Process input
+        if (!processInput()) {
+            return 0; // User quit
+        }
+        
+        // Update game state
+        update();
+        
+        // Check if player died
+        if (gameOver) {
+            return -1; // Game over
+        }
+        
+        // Check if round completed
+        if (heart->getScore() >= targetScore) {
+            return 1; // Round complete
+        }
+        
+        // Draw everything
+        draw();
+        
+        // Refresh screen and control frame rate
+        refresh();
+        usleep(16667);  // ~60 FPS (1,000,000 microseconds / 60)
+    }
+    
+    return 0; // Default return if loop exits unexpectedly
+}
+
+bool Game1340::isGameOver() const {
+    return gameOver;
+}
+
+int Game1340::getScore() const {
+    return heart->getScore();
+}
+
+int Game1340::getRound() const {
+    return round;
+}

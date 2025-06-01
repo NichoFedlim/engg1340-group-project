@@ -1,0 +1,85 @@
+#GOOGLE DOCS NOTES (MORE DETAILED): 
+https://docs.google.com/document/d/1IPwFgwbnkjraBfxkYD34CC7pjqe2iM1UJ-rl4bacE8g/edit?usp=sharing
+
+FILMING NOTES:
+https://docs.google.com/document/d/1Z3qdDaa2jGaglavF4ng48pZ-86WePpgSB6c7_Scdb2I/edit?usp=sharing
+
+#Useful git commands:
+git pull
+git add .
+git commit -m ""
+git push
+- if cannot push:
+  git pull --no-rebase origin main
+  git config pull.rebase false
+
+#Idea Overview:
+- RPG game
+- We use WASD dodging mechanics
+- Turn based attcks
+- Fight Different Bosses
+- Data to save: (BUT IF YOU DIE, it's all gone)
+  - save food to heal,
+  - save powerups, weapons or armor for defense
+- MENU page, COURSES TO TAKE (BOSSES)(different courses different difficulties), with GPA requirements or if we cannot do that, we can do course requirements 
+
+#GAMPEPLAY: 
+- User-Character: simple shape/blocky (so players don't complain about the hit radius (more clear))
+    - HKU shield (not sure if possible)
+    - book
+- health and can get a shield for extra hp
+- render maps, go to the right of the screen, and change whole map (UNDERTALE REFERENCE)
+- other option: only use 1 map to minimze memory and only render the bosses into the map --> More like shooting aliens and dodging typeshit
+- unlock certain courses by defeating the requirement courses before that, (COLLECT CREDITS)
+
+#theme ideas: (inspiration abit from Undertale)
+- climbing CS student HKU journey, 
+  //low key this idea so good and useful, for new students who wants to Computer Science NPC hahahahah.
+- bosses: MATH1851, MATH1853, ENGG1330, ENGG1340, COMP2119, COMP2120, COMP2121, COMP2396, COMP3410 (INTERNSHIP) (0 credit, maybe bonus boss), COMP4801
+  - different bosses shoots different projectyles, for example, MATH1853 shoots eigenvalues, vectors, matrix []
+- final boss: HKU LOGO, Final Project, Internship
+- powerups to save: Chat-GPT, Deepseek, matrix, calculus, and other materials.
+- MOMMY TORIEL: Organic Chemistry, Ulfred
+- game mechanics: HP, LVL (can be your year, or noob, pro, cracked, hacker)
+- progress: going through the CS syllabus
+- shop: ChatGPT subscription
+
+ASCII: https://patorjk.com/software/taag/#p=display&f=Doom&t=THE%20HKU%0ACOMPUTER%20SCIENCE%0AEXPERIENCE  
+- big
+- block
+- doom
+- modular
+- small
+- standard
+
+https://textfancy.com/
+
+░▀▀█▀▀░▒█░▒█░▒█▀▀▀░░░▒█░░▒█░▒█▀▀▀░█▀▀▄░▒█▀▀▄░░░▄█░░░░▒█▀▀▀░▒█▄░▒█░▒█▀▀█░▀█▀░▒█▄░▒█░▒█▀▀▀░▒█▀▀▀░▒█▀▀▄░▀█▀░▒█▄░▒█░▒█▀▀█░░░▒█▀▀▀░▀▄░▄▀░▒█▀▀█░▒█▀▀▀░▒█▀▀▄░▀█▀░▒█▀▀▀░▒█▄░▒█░▒█▀▀▄░▒█▀▀▀
+░░▒█░░░▒█▀▀█░▒█▀▀▀░░░▒▀▄▄▄▀░▒█▀▀▀▒█▄▄█░▒█▄▄▀░░░░█▒░░░▒█▀▀▀░▒█▒█▒█░▒█░▄▄░▒█░░▒█▒█▒█░▒█▀▀▀░▒█▀▀▀░▒█▄▄▀░▒█░░▒█▒█▒█░▒█░▄▄░░░▒█▀▀▀░░▒█░░░▒█▄▄█░▒█▀▀▀░▒█▄▄▀░▒█░░▒█▀▀▀░▒█▒█▒█░▒█░░░░▒█▀▀▀
+░░▒█░░░▒█░▒█░▒█▄▄▄░░░░░▒█░░░▒█▄▄▄▒█░▒█░▒█░▒█░░░▄█▄░░░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▄█▄░▒█░░▀█░▒█▄▄▄░▒█▄▄▄░▒█░▒█░▄█▄░▒█░░▀█░▒█▄▄▀░░░▒█▄▄▄░▄▀▒▀▄░▒█░░░░▒█▄▄▄░▒█░▒█░▄█▄░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▒█▄▄▄
+
+
+░▀▀█▀▀░▒█░▒█░▒█▀▀▀░░░▒█░▒█░▒█░▄▀░▒█░▒█░░
+░░▒█░░░▒█▀▀█░▒█▀▀▀░░░▒█▀▀█░▒█▀▄░░▒█░▒█░░
+░░▒█░░░▒█░▒█░▒█▄▄▄░░░▒█░▒█░▒█░▒█░░▀▄▄▀░░
+░▒█▀▀▄░▒█▀▀▀█░▒█▀▄▀█░▒█▀▀█░▒█░▒█░▀▀█▀▀░▒█▀▀▀░▒█▀▀▄░░░▒█▀▀▀█░▒█▀▀▄░▀█▀░▒█▀▀▀░▒█▄░▒█░▒█▀▀▄░▒█▀▀▀░░
+░▒█░░░░▒█░░▒█░▒█▒█▒█░▒█▄▄█░▒█░▒█░░▒█░░░▒█▀▀▀░▒█▄▄▀░░░░▀▀▀▄▄░▒█░░░░▒█░░▒█▀▀▀░▒█▒█▒█░▒█░░░░▒█▀▀▀░░
+░▒█▄▄▀░▒█▄▄▄█░▒█░░▒█░▒█░░░░░▀▄▄▀░░▒█░░░▒█▄▄▄░▒█░▒█░░░▒█▄▄▄█░▒█▄▄▀░▄█▄░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▒█▄▄▄░░
+░▒█▀▀▀░▀▄░▄▀░▒█▀▀█░▒█▀▀▀░▒█▀▀▄░▀█▀░▒█▀▀▀░▒█▄░▒█░▒█▀▀▄░▒█▀▀▀
+░▒█▀▀▀░░▒█░░░▒█▄▄█░▒█▀▀▀░▒█▄▄▀░▒█░░▒█▀▀▀░▒█▒█▒█░▒█░░░░▒█▀▀▀
+░▒█▄▄▄░▄▀▒▀▄░▒█░░░░▒█▄▄▄░▒█░▒█░▄█▄░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▒█▄▄▄
+
+░▀▀█▀▀░▒█░▒█░▒█▀▀▀░░░▒█░░▒█░▒█▀▀▀░█▀▀▄░▒█▀▀▄░░░▄█░░░░▒█▀▀▀░▒█▄░▒█░▒█▀▀█░▀█▀░▒█▄░▒█░▒█▀▀▀░▒█▀▀▀░▒█▀▀▄░▀█▀░▒█▄░▒█░▒█▀▀█░░░▒█▀▀▀░▀▄░▄▀░▒█▀▀█░▒█▀▀▀░▒█▀▀▄░▀█▀░▒█▀▀▀░▒█▄░▒█░▒█▀▀▄░▒█▀▀▀/n░░▒█░░░▒█▀▀█░▒█▀▀▀░░░▒▀▄▄▄▀░▒█▀▀▀▒█▄▄█░▒█▄▄▀░░░░█▒░░░▒█▀▀▀░▒█▒█▒█░▒█░▄▄░▒█░░▒█▒█▒█░▒█▀▀▀░▒█▀▀▀░▒█▄▄▀░▒█░░▒█▒█▒█░▒█░▄▄░░░▒█▀▀▀░░▒█░░░▒█▄▄█░▒█▀▀▀░▒█▄▄▀░▒█░░▒█▀▀▀░▒█▒█▒█░▒█░░░░▒█▀▀▀/n░░▒█░░░▒█░▒█░▒█▄▄▄░░░░░▒█░░░▒█▄▄▄▒█░▒█░▒█░▒█░░░▄█▄░░░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▄█▄░▒█░░▀█░▒█▄▄▄░▒█▄▄▄░▒█░▒█░▄█▄░▒█░░▀█░▒█▄▄▀░░░▒█▄▄▄░▄▀▒▀▄░▒█░░░░▒█▄▄▄░▒█░▒█░▄█▄░▒█▄▄▄░▒█░░▀█░▒█▄▄▀░▒█▄▄▄
+
+
+DLLM
+
+SHOP MECHANICS: prompt: 
+I want to make a game using C++, which outputs it on a terminal. Make me a shop function that lets the user scroll using arrow keys to select the items they want to buy, where the selected item is highlighted.  Also show how many currencies the user have on the top right corner, where the currency is credits, because the theme of my game is Beating courses, where the courses is minigames, and they get credits.
+
+The items that they can buy:
+- increase hp bar by 1, costs 1 credit
+- bandage heals 1 hp, costs 1 credit for 3 bandages
+- first aid heals 3 hp, costs 1 credit for 1 first aid
+- med kit heals 6 hp, 2 credit for 1 med kit
+- heart of jesus heals full hp, for 3 credit
