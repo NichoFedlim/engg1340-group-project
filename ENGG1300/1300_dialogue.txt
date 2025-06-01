@@ -1,0 +1,23 @@
+# Introduction dialogues
+Welcome to ENGG1300 -- Fundamental Mechanics! I'm your professor, and today we'll put Newton's laws to the test inside a virtual laboratory.
+You control a paddle--think of it as a lightweight girder mounted on frictionless rails. A steel ball represents a concentrated force vector. 
+Using only horizontal motion you will redirect that force to demolish a wall of "concept blocks" standing between you and total equilibrium.
+Each collision with the paddle is an elastic impact--conserve momentum to aim the force.
+Left and right arrow to move the paddle, and space to toggle paddle motion on/off. 
+Lives are your safety factor. Lose all of them and the design collapses.
+And you will fail this course. 
+Let's begin with Round 1. Good luck!
+
+# Round-specific instructions (dialogues 8-10)
+Round 1: Half the blocks are missing, mimicking under-loaded trusses. You have five safety factors (lives). Apply forces gently; observe equilibrium and break the remaining members.
+Round 2: The entire block lattice is present--full design load. Maintain equilibrium while transmitting sufficient impulse to fracture every element. Five lives again, but the structure won't go down easily.
+Round 3: Now we study motion under limited margin: same full lattice, only three lives. Speeds increase, rebounds grow unpredictable--master real-time momentum exchange to finish the job.
+
+# Round completion messages (dialogues 11-13)
+Excellent! Your statics are solid; the structure yielded exactly as planned.
+Impressive! You proved the entire lattice unstable under your calculated impacts.
+Remarkable! You commanded dynamics like a pro and left no block standing!
+
+# Game over messages (dialogues 14-15)
+Congratulations! You maintained equilibrium, managed impulses, and mastered both statics and dynamics. Structural integrity certified--move on to tougher systems!
+Game over! The structure out-lasted your safety factor. Review free-body diagrams and energy methods, then rebuild next semester!
